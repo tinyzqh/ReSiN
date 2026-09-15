@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="ReSiN: Silent Neuron theory and plasticity preservation for deep reinforcement learning in adaptive video streaming.">
+  <meta name="keywords" content="ReSiN, Silent Neuron, plasticity loss, adaptive video streaming, ABR, reinforcement learning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReSiN: Silent Neuron Theory and Plasticity Preservation for Deep Reinforcement Learning in Adaptive Video Streaming</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+
+  <script>
+    MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], tags: 'none' } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.min.js"></script>
+
+  <style>
+    /* ===== design tokens =================================================== */
+    :root {
+      --accent:      #2c5fb3;
+      --accent-soft: #eaf1fb;
+      --ink:         #2b2d31;
+      --muted:       #6b7078;
+      --line:        #e7e9ee;
+      --bg-soft:     #f7f8fa;
+      --shadow-sm:   0 1px 3px rgba(24, 39, 75, .06), 0 1px 2px rgba(24, 39, 75, .04);
+      --shadow-md:   0 6px 18px rgba(24, 39, 75, .08);
+      --radius:      12px;
+    }
+    html { scroll-behavior: smooth; }
+    body { color: var(--ink); }
+    section[id] { scroll-margin-top: 64px; }
+
+    /* ===== rhythm & measure ================================================ */
+    .section { padding: 4rem 1.5rem; }
+    .section.pt-0 { padding-top: 1.25rem; }
+    .section.alt { background: var(--bg-soft); }
+    .container.is-max-desktop { max-width: 1010px; }
+    .content p { line-height: 1.7; }
+    .content.has-text-justified p { text-align: justify; hyphens: auto; }
+
+    /* ===== section headers ================================================= */
+    .kicker {
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-size: .76rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: .45rem;
+    }
+    h2.title.is-3 {
+      position: relative;
+      padding-bottom: .6rem;
+      margin-bottom: 1.6rem !important;
+    }
+    h2.title.is-3::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 56px; height: 3px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+    .has-text-centered > h2.title.is-3::after,
+    h2.title.is-3.has-text-centered::after {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    h3.title.is-4 { margin-bottom: 1rem !important; }
+    .subsection-title { margin-top: 3rem; }
+
+    /* ===== sticky nav ======================================================= */
+    .page-nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(6px);
+    }
+    .page-nav .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      min-height: 48px;
+    }
+    .page-nav .nav-brand {
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: .02em;
+      padding: .5rem 1rem .5rem 0;
+      font-variant: small-caps;
+      font-size: 1.05rem;
+    }
+    .page-nav a:not(.nav-brand) {
+      position: relative;
+      padding: .8rem .85rem;
+      font-size: .9rem;
+      color: #4a4d53;
+      font-weight: 600;
+    }
+    .page-nav a:not(.nav-brand)::after {
+      content: "";
+      position: absolute;
+      left: .85rem; right: .85rem; bottom: .45rem;
+      height: 2px;
+      border-radius: 1px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .18s ease;
+    }
+    .page-nav a:not(.nav-brand):hover { color: var(--accent); }
+    .page-nav a:not(.nav-brand):hover::after { transform: scaleX(1); }
+
+    /* ===== hero ============================================================= */
+    .hero.page-hero {
+      background: linear-gradient(180deg, #f2f6fc 0%, #ffffff 100%);
+      border-bottom: 1px solid var(--line);
+    }
+    .publication-title { line-height: 1.28; }
+    .publication-links .button.is-dark {
+      background: #23252a;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .publication-links .button.is-dark:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      background: var(--accent);
+    }
+
+
+    .hero.teaser .hero-body { padding-top: 2.2rem; padding-bottom: 1.2rem; }
+    .hero.teaser .subtitle {
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 46rem;
+      margin: 1.1rem auto 0 auto;
+    }
+
+    /* ===== figures ========================================================== */
+    img.figure-img {
+      width: 100%; height: auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: .9rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .figure-caption {
+      font-size: .88rem;
+      color: var(--muted);
+      margin-top: .6rem;
+      text-align: center;
+      line-height: 1.55;
+    }
+
+    /* Side-by-side figures: each column's width is proportional to its
+       image's aspect ratio (--r), so the two images render at exactly the
+       same height with no dead space. */
+    .figpair {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      margin: 1rem 0 1.75rem 0;
+    }
+    .figpair figure {
+      flex: var(--r) 1 0;
+      min-width: 0;
+      margin: 0;
+    }
+    @media (max-width: 768px) {
+      .figpair { flex-direction: column; }
+      .figpair figure { flex: none; width: 100%; }
+    }
+
+    /* upper-bound row: a ceiling, not a competing method */
+    tr.upper-bound td {
+      border-top: 2px solid #b5bdc7;
+      color: #4d555c;
+      font-style: italic;
+    }
+
+    /* ===== statement cards ================================================== */
+    .stmt {
+      border-left: 4px solid #999;
+      border-radius: 10px;
+      background: #fafafa;
+      padding: 1.25rem 1.6rem;
+      margin: 1.5rem 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .stmt .stmt-head {
+      font-weight: 700;
+      margin-bottom: .5rem;
+      letter-spacing: .01em;
+    }
+    .stmt.definition  { border-left-color: #3273dc; background: #f5f9ff; }
+    .stmt.definition  .stmt-head { color: #2160c4; }
+    .stmt.theorem     { border-left-color: #257953; background: #f3faf6; }
+    .stmt.theorem     .stmt-head { color: #1f6b49; }
+    .stmt.assumption  { border-left-color: #d67d00; background: #fffaf1; }
+    .stmt.assumption  .stmt-head { color: #a86400; }
+    .stmt .why-abr {
+      margin-top: .7rem;
+      padding-top: .6rem;
+      border-top: 1px dashed rgba(0,0,0,.1);
+      font-size: .9rem;
+      color: var(--muted);
+    }
+    .stmt .why-abr .tag { vertical-align: baseline; margin-right: .3rem; }
+
+    /* ===== callouts ========================================================= */
+    .callout {
+      border-radius: var(--radius);
+      padding: 1.25rem 1.6rem;
+      margin: 1.8rem 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .callout.pivot { background: #fff8e6; border: 1px solid #f0d48a; }
+    .callout.win   { background: #edf8f1; border: 1px solid #a8d8bd; }
+
+    /* ===== proofs =========================================================== */
+    details.proof {
+      margin: 1rem 0 1.6rem 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: .85rem 1.25rem;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    details.proof summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #3d4046;
+      list-style-position: outside;
+    }
+    details.proof summary:hover { color: var(--accent); }
+    details.proof[open] summary { margin-bottom: .7rem; }
+
+    /* ===== algorithm box ==================================================== */
+    .algorithm {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin: 1.8rem 0;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .algorithm .algo-title {
+      border-bottom: 1px solid var(--line);
+      padding: .7rem 1.25rem;
+      font-weight: 700;
+      background: var(--bg-soft);
+    }
+    .algorithm ol {
+      margin: 1rem 1.4rem 1.1rem 2.6rem;
+      font-size: .95rem;
+      line-height: 1.65;
+    }
+    .algorithm .algo-req {
+      padding: .8rem 1.25rem 0 1.25rem;
+      font-size: .95rem;
+    }
+
+    /* ===== three-step story cards =========================================== */
+    .story-card {
+      height: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      border-top: 3px solid #bbb;
+      padding: 1.4rem 1.5rem;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .story-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .story-card.s1 { border-top-color: #cc0f35; }
+    .story-card.s2 { border-top-color: #d67d00; }
+    .story-card.s3 { border-top-color: #257953; }
+    .story-card .story-step {
+      font-size: .76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: .4rem;
+    }
+    .story-card.s1 .story-step { color: #cc0f35; }
+    .story-card.s2 .story-step { color: #b26b00; }
+    .story-card.s3 .story-step { color: #257953; }
+    .story-card .story-title {
+      font-weight: 700;
+      font-size: 1.06rem;
+      line-height: 1.35;
+      margin-bottom: .55rem;
+    }
+    .story-card p { color: #43464c; }
+
+
+    /* ===== claim chips ====================================================== */
+    .claim-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.85rem;
+      height: 1.85rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: .95rem;
+      font-weight: 700;
+      margin-right: .65rem;
+      vertical-align: -0.28rem;
+    }
+
+    /* ===== takeaways ======================================================== */
+    .takeaways {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      padding: 1.6rem 1.9rem;
+    }
+    .takeaways ul { margin-top: .6rem; }
+    .takeaways li { margin-bottom: .55rem; line-height: 1.6; }
+
+    /* ===== bibtex =========================================================== */
+    #BibTeX pre {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    blockquote {
+      border-left-color: var(--accent) !important;
+      background: var(--accent-soft) !important;
+      border-radius: 0 10px 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="page-nav">
+  <div class="container">
+    <span class="nav-brand">ReSiN</span>
+    <a href="#overview">Overview</a>
+    <a href="#motivation">Motivation</a>
+    <a href="#theory">Theory</a>
+    <a href="#algorithm">Algorithm</a>
+    <a href="#assumptions">Assumptions&nbsp;&amp;&nbsp;Validation</a>
+    <a href="#experiments">Experiments</a>
+    <a href="#BibTeX">BibTeX</a>
+  </div>
+</nav>
+
+<section class="hero page-hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">Silent Neuron Theory and Plasticity Preservation for Deep Reinforcement Learning in Adaptive Video Streaming</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://tinyzqh.github.io/">Zhiqiang He</a>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=95oIprAAAAAJ&hl=en">Zhi Liu</a><sup>&dagger;</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">The University of Electro-Communications, Tokyo, Japan</span>
+          </div>
+          <div class="is-size-6 publication-authors">
+            <span class="author-block"><sup>&dagger;</sup>Corresponding author</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="./static/pdfs/ReSiN_paper.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2505.01584"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/tinyzqh/ReSiN"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser" id="overview">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/theory_analysis.png" alt="ReSiN theoretical improvement illustration"
+           class="figure-img"/>
+      <h2 class="subtitle has-text-centered">
+        <span style="font-variant: small-caps;">ReSiN</span> resets <i>silent neurons</i> &mdash; units
+        inactive in <b>both</b> forward and backward propagation &mdash; preserving neural plasticity
+        under non-stationary bandwidth and yielding a tighter performance bound than
+        output-only dormant-neuron resets.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= TL;DR ======================= -->
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">The paper in three steps</h2>
+    <div class="columns is-variable is-4 mt-4">
+      <div class="column">
+        <div class="story-card s1">
+          <div class="story-step">1 &middot; Phenomenon</div>
+          <div class="story-title">Non-stationary bandwidth breaks deep ABR policies</div>
+          <p class="is-size-6">A PPO agent that is excellent under the bandwidth distribution it was
+          trained on collapses once that distribution shifts &mdash; and more training does not bring
+          it back.</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="story-card s2">
+          <div class="story-step">2 &middot; Diagnosis</div>
+          <div class="story-title">Plasticity loss, mis-measured by dormant neurons</div>
+          <p class="is-size-6">The failure is traced to <i>plasticity loss</i>. But the standard
+          dormant-neuron metric watches only forward activations: we prove its forward&ndash;backward
+          equivalence holds <b>only at exactly zero</b>, and breaks under the practical
+          $\epsilon$-threshold.</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="story-card s3">
+          <div class="story-step">3 &middot; Prescription</div>
+          <div class="story-title">Reset the provably inactive units: Silent Neurons</div>
+          <p class="is-size-6">A <i>Silent Neuron</i> is inactive in both forward output and
+          loss-independent backward gradient. Resetting exactly these units restores plasticity, and
+          provably tightens the tracking bound from the full dimension $d$ to the silent-subspace
+          average $\frac{1}{T}\sum_t d_{s,t}$.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= Abstract ======================= -->
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Adaptive video streaming optimizes Quality of Experience (QoE) metrics by selecting
+            appropriate bitrates according to varying network bandwidth and user demands. In practice,
+            however, real-world network bandwidth often exhibits heterogeneity relative to training
+            environments. Current methods predominantly tackle this problem through learning-based
+            approaches designed to improve generalization performance. Our systematic
+            investigation reveals a critical limitation: neural networks suffer from
+            <b>plasticity loss</b>, significantly impeding their ability to adapt to heterogeneous
+            network conditions.
+          </p>
+          <p>
+            Through theoretical analysis of neural propagation mechanisms, we demonstrate that existing
+            dormant neuron metrics inadequately characterize neural plasticity loss. To address this
+            limitation, we have developed the <b>Silent Neuron theory</b>, which provides a more comprehensive
+            framework for understanding plasticity degradation. Based on these theoretical insights, we
+            propose the <b>Reset Silent Neuron (ReSiN)</b>, which preserves neural plasticity through
+            strategic neuron resets guided by both forward and backward propagation states. Moreover,
+            we establish a tighter performance bound for ReSiN under non-stationary network conditions.
+          </p>
+          <p>
+            In our implementation of an adaptive video streaming system, ReSiN shows substantial gains
+            under non-stationary conditions in which the available bandwidth alternates between high and
+            low regimes, improving the QoE by <b>178%</b>, and it remains beneficial under stationary
+            real-world traces, where it improves the QoE by <b>1.6%</b>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= Motivation ======================= -->
+<section class="section pt-0" id="motivation">
+  <div class="container is-max-desktop">
+    <p class="kicker">&sect;1 &middot; Motivation</p>
+    <h2 class="title is-3">Why do ABR policies fail under non-stationary bandwidth?</h2>
+    <div class="figpair">
+      <figure style="--r: 2.67;">
+        <img src="./static/images/ProblemMotivation.png" alt="PPO under different bandwidth conditions" class="figure-img"/>
+        <p class="figure-caption">
+          A PPO agent that excels under stationary bandwidth collapses when the
+          bandwidth distribution shifts.
+        </p>
+      </figure>
+      <figure style="--r: 1.55;">
+        <img src="./static/images/policy_1_dormant_and_overleap.png" alt="Evolution of plasticity loss" class="figure-img"/>
+        <p class="figure-caption">
+          The culprit: plasticity loss. Dormant units accumulate and persist
+          as training progresses.
+        </p>
+      </figure>
+    </div>
+    <div class="content has-text-justified">
+      <p>
+        Our analysis shows that the standard <i>dormant neuron</i> criterion &mdash; which looks only
+        at forward activations &mdash; misses an entire class of units that stop learning: neurons
+        whose <i>gradients</i> vanish even though their outputs do not, and conversely, neurons whose
+        small outputs still carry live gradients. The Silent Neuron theory characterizes plasticity
+        loss through the <b>intersection of forward silence and backward silence</b>, and ReSiN resets
+        exactly those units, avoiding both under- and over-resetting.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= Theory ======================= -->
+<section class="section alt" id="theory">
+  <div class="container is-max-desktop">
+    <p class="kicker">&sect;2 &middot; Theory</p>
+    <h2 class="title is-3">Theory I &middot; Where the dormant-neuron metric stops working</h2>
+
+    <div class="content has-text-justified">
+      <p>
+        Consider a feed-forward layer $l$ whose $i$-th neuron outputs
+        $h_{l,i}(\mathbf{x})=\sigma_l(\mathbf{w}_{l,i}^{\top}\mathbf{x}+b_{l,i})$ on inputs
+        $\mathbf{x}$ drawn from a distribution $D$. The classical plasticity-loss literature
+        declares a neuron dormant by its <i>relative forward activity</i>:
+      </p>
+    </div>
+
+    <div class="stmt definition">
+      <div class="stmt-head">Definition 1 (Dormant Neuron)</div>
+      For a layer $l$ with $H_l$ neurons, the dormancy index of neuron $(l,i)$ is
+      $$ s_{l,i}=\frac{\mathbb{E}_{\mathbf{x}\in D}\left|h_{l,i}(\mathbf{x})\right|}
+      {\tfrac{1}{H_l}\sum_{j=1}^{H_l}\mathbb{E}_{\mathbf{x}\in D}\left|h_{l,j}(\mathbf{x})\right|}. $$
+    </div>
+
+    <div class="content has-text-justified">
+      <p>Three mild regularity conditions &mdash; each of which is not an idealization but a property
+        of the ABR system itself &mdash; are all the theory needs:</p>
+    </div>
+
+    <div class="columns is-variable is-3">
+      <div class="column">
+        <div class="stmt assumption" style="height:100%;">
+          <div class="stmt-head">Assumption 1 (Continuity &amp; Differentiability)</div>
+          $h_{l,j}\in C^{1}(\mathbb{R}^{k_l})$: neuron outputs are continuously differentiable in the input.
+          <div class="why-abr"><span class="tag is-warning is-light">Why it holds in ABR</span>
+            Satisfied by every activation function used in the PPO implementation.</div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="stmt assumption" style="height:100%;">
+          <div class="stmt-head">Assumption 2 (Boundedness)</div>
+          There exists $M>0$ with $\mathbb{E}_{\mathbf{x}\in D}|h_{l,j}(\mathbf{x})|\le M$ for all $j$.
+          <div class="why-abr"><span class="tag is-warning is-light">Why it holds in ABR</span>
+            Guaranteed physically: buffer occupancy $B_f(t)\in[0,B_f^{max}]$ and throughput
+            measurements are normalized by construction.</div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="stmt assumption" style="height:100%;">
+          <div class="stmt-head">Assumption 3 (Non-degeneracy)</div>
+          There exists $m>0$ with $\tfrac{1}{H_l}\sum_{j}\mathbb{E}_{\mathbf{x}\in D}|h_{l,j}(\mathbf{x})|\ge m$,
+          so the dormancy index is well defined.
+          <div class="why-abr"><span class="tag is-warning is-light">Verified empirically</span>
+            Layer-average activation stays strictly positive throughout all training conditions
+            (see <a href="#assumptions">Assumptions &amp; Validation</a>).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stmt theorem">
+      <div class="stmt-head">Theorem 1 (Bidirectional Dormancy Characterization)</div>
+      Under Assumptions 1&ndash;3, the following are equivalent:
+      <br><b>(A) Dormancy:</b> $s_{l,i}=0$, equivalently $\mathbb{E}_{\mathbf{x}\in D}|h_{l,i}(\mathbf{x})|=0$;
+      <br><b>(B) Zero gradient on $D$ and one zero activation:</b>
+      $\nabla h_{l,i}(\mathbf{x})=0 \;\; \forall\,\mathbf{x}\in D$, and
+      $\exists\,\mathbf{x}_0\in D$ with $h_{l,i}(\mathbf{x}_0)=0$.
+    </div>
+
+    <details class="proof">
+      <summary>Proof sketch (chain of three lemmas)</summary>
+      <div class="content has-text-justified is-size-6 mt-2">
+        <p><b>Forward Dormancy Lemma.</b> $s_{l,i}=0$ forces
+          $\mathbb{E}|h_{l,i}|=0$ (non-degenerate denominator), so $h_{l,i}=0$ almost everywhere on
+          $D$; continuity upgrades this to <i>everywhere</i> on $D$.</p>
+        <p><b>Forward-to-Backward Lemma.</b> If $h_{l,i}\equiv 0$ on $D$, the Mean Value Theorem
+          applied along any admissible perturbation direction forces
+          $\nabla h_{l,i}(\mathbf{x})=0$ on all of $D$ &mdash; a nonzero gradient at any point
+          would produce a nonzero inner product $\epsilon\|\nabla h_{l,i}\|^2$, a contradiction.</p>
+        <p><b>Backward Dormancy Lemma.</b> Conversely, a vanishing gradient on a connected domain
+          makes $h_{l,i}$ constant; a single zero value pins that constant to $0$, giving
+          $s_{l,i}=0$. Full proofs in the paper's appendix.</p>
+      </div>
+    </details>
+
+    <div class="callout pivot">
+      <p class="mb-2"><b>The catch &mdash; and the motivation for Silent Neurons.</b></p>
+      <p class="is-size-6">
+        Theorem 1 says statistical dormancy and functional silence coincide, but <b>only at exactly
+        zero</b>. In practice dormancy is detected by a threshold $s_{l,i}<\epsilon$, the conclusion
+        depends on the input distribution $D$, and condition (B) holds on $D$ rather than the whole
+        input space. Crucially, relaxing $s_{l,i}=0$ to $s_{l,i}<\epsilon$ <b>no longer guarantees any
+        gradient property</b>: a &ldquo;dormant&rdquo; neuron may still be learning, and a learning
+        neuron may look dormant. Resetting on forward evidence alone therefore both over- and
+        under-shoots.
+      </p>
+    </div>
+
+    <h2 class="title is-3 subsection-title">Theory II &middot; Silent Neurons</h2>
+
+    <div class="content has-text-justified">
+      <p>
+        ReSiN examines the backward pass directly, through the <i>loss-independent</i> gradient
+        $g_{\mathbf{w}}=\nabla_{\mathbf{w}}\sum_{n} f_{\mathbf{w}}(x_n)$, i.e., the network's
+        sensitivity of its own outputs to its parameters, aggregated over a batch. Compared to PPO's
+        loss gradient this (i) avoids the masking effect where a zero <i>loss</i> gradient hides an
+        active neuron, (ii) reflects contributions across the full decision space instead of the
+        current optimization objective, and (iii) detects neurons that matter for particular state
+        representations even when the current loss ignores them.
+      </p>
+    </div>
+
+    <div class="stmt definition">
+      <div class="stmt-head">Definition 2 (Silent Neuron)</div>
+      The activity index of neuron $(l,i)$ adds a <i>layer-normalized</i> forward term to an
+      <i>unnormalized</i> backward term:
+      $$ \xi_{l,i}=\underbrace{\frac{\mathbb{E}_{\mathbf{x}\in D}|h_{l,i}(\mathbf{x})|}
+        {\tfrac{1}{H_l}\sum_{j}\mathbb{E}_{\mathbf{x}\in D}|h_{l,j}(\mathbf{x})|}}_{\textstyle \xi^{d}_{l,i}}
+        \;+\;\underbrace{\mathbb{E}_{\mathbf{x}\in D}|g_{l,i}(\mathbf{x})|}_{\textstyle \xi^{g}_{l,i}}, $$
+      where the backward activity of a neuron is the mean absolute gradient over its $k_l$ incoming
+      weights,
+      $$ g_{l,i}(\mathbf{x})=\frac{1}{k_l}\sum_{j'=1}^{k_l}
+        \left|\frac{\partial}{\partial W_{l,i,j'}}\sum_{n} f_{\mathbf{w}}(\mathbf{x}_n)\right|. $$
+      Given thresholds $\delta_d,\delta_g>0$, a neuron is <i>silent</i> only when <b>both</b>
+      criteria hold at once &mdash; the two indicators are combined by <b>intersection</b>:
+      $$ \mathcal{S}_t=\bigl\{(l,i):\ \xi^{d}_{l,i}\le\delta_d,\ \ \xi^{g}_{l,i}\le\delta_g\bigr\}. $$
+      <div class="is-size-7 mt-2" style="color:#4d555c;">
+        The forward term is divided by the layer average so it is scale-free; the backward term keeps
+        its absolute magnitude, so it reflects a neuron's functional sensitivity rather than its rank
+        within the layer. Because the two are intersected, the backward criterion only <i>refines</i>
+        the normalized forward one, so a separate gradient normalization is unnecessary.
+      </div>
+    </div>
+
+    <div class="stmt theorem">
+      <div class="stmt-head">Theorem 2 (Silent Neuron Characterization)</div>
+      Under Assumptions 1&ndash;3, and with
+      $\mathbb{E}_{\mathbf{x}\in D}|h_{l,i}(\mathbf{x})|\le M_h$,
+      $\mathbb{E}_{\mathbf{x}\in D}|g_{l,i}(\mathbf{x})|\le M_g$, the following are equivalent for
+      arbitrarily small $\epsilon>0$:
+      <br><b>(A) Silence:</b> $\xi_{l,i}<\epsilon$;
+      <br><b>(B) Vanishing forward and backward activity on $D$:</b> for any
+      $\delta_d>0$ and $\delta_g>0$,
+      $\ \mathbb{E}_{\mathbf{x}\in D}|h_{l,i}(\mathbf{x})|<\delta_d$ and
+      $\ \mathbb{E}_{\mathbf{x}\in D}|g_{l,i}(\mathbf{x})|<\delta_g$.
+    </div>
+
+    <div class="content has-text-justified">
+      <p>
+        This is the exact repair of Theorem 1's limitation: the equivalence now survives the
+        <b>threshold form</b> used in practice. A small activity index certifies that both the forward
+        output <i>and</i> the gradient are small &mdash; something the $\epsilon$-relaxed dormancy
+        index cannot certify. Neurons flagged by $\xi_{l,i}<\epsilon$ are therefore provably
+        near-inert and can be reinitialized without disturbing current learning dynamics.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= Algorithm ======================= -->
+<section class="section" id="algorithm">
+  <div class="container is-max-desktop">
+    <p class="kicker">&sect;3 &middot; Method</p>
+    <h2 class="title is-3">ReSiN-PPO: resets as subspace-restricted perturbations</h2>
+
+    <div class="content has-text-justified">
+      <p>
+        At iteration $t$, silent neurons are the set
+        $\mathcal{S}_t=\{(l,i): \xi^{d}_{l,i}\le\delta_d,\ \xi^{g}_{l,i}\le\delta_g\}$
+        (forward and backward criteria respectively), associated with an orthogonal projection
+        $\Pi_t$ of rank $d_{s,t}\ll d$ onto the corresponding parameter coordinates. Reinitializing
+        those parameters is modeled as Gaussian noise <i>restricted to the silent subspace</i>,
+        which turns the reset into an analyzable update rule:
+      </p>
+      <p class="has-text-centered">
+        $\mathbf{w}_{t+1}=\mathbf{w}_t-\eta\,\nabla L_t(\mathbf{w}_t)
+        +\eta\gamma\,\Pi_t\boldsymbol{\epsilon}_t,\qquad
+        \boldsymbol{\epsilon}_t\sim\mathcal{N}(0, I_d).$
+      </p>
+      <p>
+        Exploration noise lands <b>only</b> on neurons proven inactive; active neurons are untouched.
+      </p>
+    </div>
+
+    <div class="algorithm">
+      <div class="algo-title">Algorithm 1 &middot; Silent Neuron&ndash;Enhanced PPO (ReSiN-PPO)</div>
+      <div class="algo-req">
+        <b>Require:</b> parameters $\mathbf{w}$, learning rate $\eta$,
+        activity thresholds $\delta_d,\delta_g$, max iterations $T$, init reset delay $F$.
+      </div>
+      <ol>
+        <li><b>for</b> $t=1$ to $T$:</li>
+        <li style="margin-left:1.2rem;">Interact with the environment and collect trajectories.</li>
+        <li style="margin-left:1.2rem;">Compute PPO loss $L_t(\mathbf{w})$ and gradient $g_t=\nabla_{\mathbf{w}} L_t(\mathbf{w})$.</li>
+        <li style="margin-left:1.2rem;"><b>if</b> $t>F$: compute activity scores $\xi^{g}_{l,i},\ \xi^{d}_{l,i}$ for all hidden units;
+            identify $\mathcal{S}_t=\{(l,i):\xi^{d}_{l,i}\le\delta_d,\ \xi^{g}_{l,i}\le\delta_g\}$;
+            build the mask/projection $\Pi_t$ onto the associated parameters;
+            <b>reset</b> those units from the initialization distribution,
+            $\mathbf{w}\leftarrow(\mathbf{I}-\Pi_t)\,\mathbf{w}+\Pi_t\,\mathbf{w}_{\mathrm{init}}$;
+            then apply the <b>PPO update</b> $\mathbf{w}\leftarrow\mathbf{w}-\eta g_t$.</li>
+        <li style="margin-left:1.2rem;"><b>else</b>: standard PPO update $\mathbf{w}\leftarrow\mathbf{w}-\eta g_t$.</li>
+      </ol>
+    </div>
+
+    <div class="content has-text-justified is-size-6">
+      <p>
+        <b>Overhead.</b> Forward scores ride along the normal forward pass; backward scores cost one
+        extra backward pass per iteration; thresholding and masking are element-wise, so the reset
+        phase adds $O(d_{\mathbf{w}})$ per iteration &mdash; a small constant factor over standard PPO.
+      </p>
+    </div>
+
+    <h3 class="title is-4 subsection-title">A provably tighter tracking bound</h3>
+
+    <div class="content has-text-justified">
+      <p>
+        Following trust-region analysis frameworks, the tracking behavior of this update is
+        analyzed under three standard assumptions:
+        <b>(A4) $L$-smoothness</b> of $L_t$;
+        <b>(A5) $\mu$-strong convexity</b> of $L_t$ on $\mathbb{R}^d$ &mdash; an idealization adopted
+        for the tracking analysis, not a claim about the PPO objective;
+        and <b>(A6) non-stationarity</b> measured by the optimum path length
+        $P_T=\sum_{t=1}^{T-1}\|\mathbf{w}^*_{t+1}-\mathbf{w}^*_t\|$.
+      </p>
+    </div>
+
+    <div class="stmt theorem">
+      <div class="stmt-head">Theorem 3 (Tracking Analysis of Subspace-Restricted Updates for PPO)</div>
+      Under (A4)&ndash;(A6) with step size $0<\eta\le 1/L$ and the update rule above, the average
+      squared tracking error $e_t=\mathbf{w}_t-\mathbf{w}^*_t$ satisfies
+      $$ \frac{1}{T}\sum_{t=1}^{T}\mathbb{E}\|e_t\|^2
+      \;\le\;
+      \frac{2}{\mu\eta T}\Bigl(\mathbb{E}\|e_0\|^2+\frac{2P_T^2}{\mu\eta}\Bigr)
+      \;+\;
+      \frac{2\eta\gamma^2}{\mu}\cdot\frac{1}{T}\sum_{t=0}^{T-1} d_{s,t}. $$
+    </div>
+
+    <div class="callout win">
+      <p class="mb-2"><b>Why this is strictly tighter.</b></p>
+      <p class="is-size-6">
+        The comparable bound for full-space perturbation (PA-MoE) carries the noise term
+        $\frac{2\eta\gamma^2}{\mu}\cdot d$ with the <i>global</i> parameter dimension $d$. ReSiN
+        replaces $d$ by the empirical average silent-subspace dimension
+        $\frac{1}{T}\sum_t d_{s,t}$. Since $d_{s,t}\le d$ always, the bound is never worse; and a
+        single step with $d_{s,t^*}\lt d$ already makes it <b>strictly</b> tighter. Measurements below
+        confirm $d_{s,t}\ll d$ throughout ABR training.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= Assumption validation ======================= -->
+<section class="section alt" id="assumptions">
+  <div class="container is-max-desktop">
+    <p class="kicker">&sect;4 &middot; Assumption validation</p>
+    <h2 class="title is-3">How the assumptions are validated</h2>
+    <div class="content has-text-justified">
+      <p>
+        The theory rests on two kinds of premises: the regularity conditions behind Theorems 1&ndash;2
+        (Assumptions 1&ndash;3) and the conditions behind Theorem 3 (A4&ndash;A6). Continuity and
+        boundedness hold by construction of the ABR system; the remaining premises are examined
+        <i>empirically</i>. Theorem 3 is a <b>conditional</b> result: $\mu$-strong convexity (A5) is
+        adopted as a standard idealization for tracking analysis, and we do <b>not</b> claim it holds
+        for the non-convex PPO objective. What we report instead is a description of the local
+        curvature around the training iterates.
+      </p>
+    </div>
+
+    <h3 class="title is-4">1&nbsp;&middot;&nbsp;Non-degeneracy, and $d_{s,t}\lt d$ at every step</h3>
+    <div class="figpair" style="margin-bottom:1.25rem;">
+      <figure style="--r: 4.00;"><img class="figure-img" src="./static/images/policy_0_dormant_and_gradient.png" alt="Policy layer 0 neuron activity"></figure>
+      <figure style="--r: 4.34;"><img class="figure-img" src="./static/images/policy_1_dormant_and_gradient.png" alt="Policy layer 1 neuron activity"></figure>
+    </div>
+    <div class="figpair">
+      <figure style="--r: 4.34;"><img class="figure-img" src="./static/images/value_0_dormant_and_gradient.png" alt="Value layer 0 neuron activity"></figure>
+      <figure style="--r: 4.34;"><img class="figure-img" src="./static/images/value_1_dormant_and_gradient.png" alt="Value layer 1 neuron activity"></figure>
+    </div>
+    <div class="content has-text-justified is-size-6">
+      <p>
+        Neuron-activity audits across both policy and value networks (dormant ratio LD, dormancy
+        persistence LDO, zero-gradient ratio LZG, zero-gradient persistence LZGO) show
+        (i) the layer-average activation stays strictly positive under all training conditions
+        &mdash; validating <b>Assumption 3 (non-degeneracy)</b>; and (ii) the silent subspace
+        dimension $d_{s,t}$ remains well below the full dimension $d$ at every observed step &mdash;
+        the exact condition that makes Theorem 3's bound <b>strictly</b> tighter than the
+        full-dimension bound.
+      </p>
+    </div>
+
+    <h3 class="title is-4 subsection-title">2&nbsp;&middot;&nbsp;The perturbations stay inside the PPO trust region</h3>
+    <div class="columns is-centered">
+      <div class="column is-three-fifths">
+        <img class="figure-img" src="./static/images/fig_trust_region_combined_seed1.png" alt="Perturbation points vs trust region">
+      </div>
+    </div>
+    <div class="content has-text-justified is-size-6">
+      <p>
+        The curvature we report is measured where the algorithm actually operates. Sampled
+        perturbation points fall almost entirely inside the PPO trust region across all tested
+        perturbation radii, so the spectrum below describes the region the updates visit.
+      </p>
+    </div>
+
+    <h3 class="title is-4 subsection-title">3&nbsp;&middot;&nbsp;Hessian spectrum: value loss dominates the curvature</h3>
+    <div class="columns is-centered">
+      <div class="column is-three-fifths">
+        <img class="figure-img" src="./static/images/fig_lanczos_combined_seed1.png" alt="Hessian spectrum over PPO training (Lanczos)">
+      </div>
+    </div>
+    <div class="content has-text-justified is-size-6">
+      <p>
+        Lanczos estimates of the Hessian spectrum along PPO training show that the smallest eigenvalue
+        $\lambda_{\min}(H)$ <b>remains slightly negative</b> &mdash; the objective is locally
+        non-convex. At the same time, the spectrum is dominated by a few large positive eigenvalues,
+        so the curvature is positive along the principal directions of the loss.
+      </p>
+      <blockquote class="is-size-6">
+        These measurements are reported as a description of the local geometry, not as evidence that
+        (A5) holds. Extending the analysis to weaker local conditions consistent with the measured
+        curvature is left to future work.
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= Experiments ======================= -->
+<section class="section" id="experiments">
+  <div class="container is-max-desktop">
+    <p class="kicker">&sect;5 &middot; Experiments</p>
+    <h2 class="title is-3">Experiments: putting the theory's promises to the test</h2>
+
+    <div class="content has-text-justified">
+      <p>
+        The theory above makes four falsifiable claims. If Silent Neurons are the right unit of
+        intervention, then (1) resetting them should restore adaptation exactly where plain PPO and
+        output-only resets fail; (2) the QoE gains should <i>co-move with</i> a measurable reduction
+        in dormancy &mdash; the mechanism, not just the outcome; (3) the advantage should be robust to
+        the method's own knobs ($\delta_d,\delta_g$) and carry over to real traces and other
+        architectures; and (4) it should survive contact with the strongest ABR baselines, not only
+        with PPO variants. The experiments interrogate each claim in turn.
+      </p>
+    </div>
+
+    <h3 class="title is-4"><span class="claim-chip">1</span>Resets restore adaptation where the baselines fail</h3>
+    <div class="columns is-centered">
+      <div class="column is-three-fifths">
+        <img class="figure-img" src="./static/images/RewardAndIQM.png" alt="QoE learning curves and IQM comparison">
+      </div>
+    </div>
+    <div class="content has-text-justified is-size-6">
+      <p>
+        The comparison is deliberately stacked against ReSiN: alongside non-stationary PPO (PPO-NS)
+        and output-based dormant resets (PPO-NS-OR), it includes three <i>oracles</i> that never face
+        a distribution shift (PPO-HBW/LBW trained and evaluated on stationary high/low bandwidth, and
+        the mixed-bandwidth PPO-MBW). (a) Whenever the bandwidth regime switches, PPO-NS drops and
+        never recovers &mdash; the plasticity-loss signature from the Motivation section. ReSiN
+        re-adapts after every switch and closes most of the gap to the oracles. (b) Under the
+        interquartile mean over the whole training trajectory, ReSiN reaches an IQM QoE of
+        <b>0.504</b> &mdash; <b>178% above PPO-NS</b> (0.181) and <b>24% above PPO-NS-OR</b> (0.406).
+        PPO-HBW lands at a comparable 0.522 only because it runs under stationary high bandwidth and
+        stays nearly flat, whereas ReSiN starts lower and improves steadily.
+        Output-only resets (PPO-NS-OR) recover only part of this &mdash; consistent with Theorem 1's
+        warning that forward evidence alone over- and under-resets.
+      </p>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-three-fifths">
+        <img class="figure-img" src="./static/images/system_info_data.png" alt="System metrics comparison">
+        <p class="figure-caption">The gains are not a reward-hacking artifact: at the system level
+          (sleep time, buffer occupancy, throughput), ReSiN keeps the streaming pipeline itself
+          healthier than PPO-NS and output-based resets.</p>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <img class="figure-img" src="./static/images/InsightReward2.png" alt="QoE components learning curves">
+        <p class="figure-caption">Decomposing QoE explains <i>how</i>: ReSiN selects bitrates more
+          aggressively while holding rebuffering and smoothness steady &mdash; the behavior of an
+          agent that can still explore, i.e., restored plasticity.</p>
+      </div>
+    </div>
+
+    <h3 class="title is-4 subsection-title"><span class="claim-chip">2</span>The mechanism is plasticity, and it is measurable</h3>
+    <div class="content has-text-justified is-size-6">
+      <p>
+        Better QoE alone would not establish that <i>plasticity</i> is the mechanism &mdash; the noise
+        injection could simply act as extra exploration. The direct test is to watch the neurons:
+      </p>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-three-fifths">
+        <img class="figure-img" src="./static/images/return_and_dormant.png" alt="Return and dormancy patterns">
+        <p class="figure-caption">In every audited layer (policy/value, layers 0&ndash;1), ReSiN holds
+          the dormant fraction at the lowest level precisely while its returns climb; in the
+          baselines, dormancy ratchets upward and returns stagnate. The QoE gap and the dormancy gap
+          rise and fall <b>together</b> &mdash; the co-movement Claim 2 requires.</p>
+      </div>
+    </div>
+
+    <h3 class="title is-4 subsection-title"><span class="claim-chip">3</span>Robust to its own knobs, and it transfers</h3>
+    <div class="content has-text-justified is-size-6">
+      <p>
+        ReSiN introduces exactly two hyperparameters &mdash; the forward and backward thresholds
+        $\delta_d,\delta_g$ that define silence. A method that only works for a lucky threshold pair
+        would be fragile in deployment, so the ablations sweep both, plus the learning rate:
+      </p>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <img class="figure-img" src="./static/images/AblationThresholds.png" alt="Threshold and learning-rate ablations">
+        <p class="figure-caption">(a) dormant-reset threshold, (b) gradient-reset threshold,
+          (c) learning rate: performance stays flat across a wide band of both thresholds &mdash;
+          the intersection criterion, not a tuned constant, is doing the work.</p>
+      </div>
+    </div>
+    <div class="figpair">
+      <figure style="--r: 2.50;">
+        <img class="figure-img" src="./static/images/ablation_curve_seed0.png" alt="Real-world trace training, seed 0">
+        <p class="figure-caption">Beyond synthetic bandwidth: trained on real-world traces, the
+          fwd+bwd criterion again keeps dormancy lowest (right) and converts it into QoE (left)
+          &mdash; both halves of the Silent-Neuron definition are necessary. Over the full
+          trajectory (seed&nbsp;0): QoE 0.891 for Fwd+Bwd against 0.876 (Pensieve), 0.877
+          (FwdOnly) and 0.854 (BwdOnly), at a dormant fraction of 0.081 against 0.169, 0.058
+          and 0.148.</p>
+      </figure>
+      <figure style="--r: 2.50;">
+        <img class="figure-img" src="./static/images/ablation_curve_seed1.png" alt="Real-world trace training, seed 1">
+        <p class="figure-caption">The same experiment under a second random seed (seed&nbsp;1)
+          reproduces the ordering &mdash; QoE 0.893 for Fwd+Bwd against 0.887, 0.873 and 0.854,
+          with dormant fractions 0.089, 0.184, 0.055 and 0.141 &mdash; so the ablation is not an
+          artifact of one seed.</p>
+      </figure>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-three-fifths">
+        <img class="figure-img" src="./static/images/qoe_bar_test.png" alt="QoE across architectures">
+        <p class="figure-caption">Beyond one network: swapping the backbone architecture preserves
+          the ordering &mdash; the reset principle, not an architecture-specific trick, carries
+          the advantage.</p>
+      </div>
+    </div>
+
+    <h3 class="title is-4 subsection-title"><span class="claim-chip">4</span>It holds up against the ABR state of the art</h3>
+    <div class="content has-text-justified is-size-6">
+      <p>
+        Finally, beating PPO variants is necessary but not sufficient &mdash; the practical question
+        is whether plasticity preservation moves the needle against purpose-built ABR algorithms:
+      </p>
+    </div>
+    <div class="columns is-centered">
+      <div class="column">
+        <img class="figure-img" src="./static/images/qoe_panels_test.png" alt="Comparison with ABR algorithms on test traces">
+        <p class="figure-caption">On held-out test traces, ReSiN outperforms both rule-based methods
+          (BB, Rate, RobustMPC, BOLA) and learning-based ones (Pensieve, MERINA, PAMoE) on overall
+          QoE and its bitrate/rebuffering components &mdash; including the meta-RL method MERINA,
+          which is explicitly designed for fast adaptation.</p>
+      </div>
+    </div>
+
+    <div class="content has-text-justified is-size-6">
+      <p>
+        To make those margins readable, we also compute an <b>offline optimal</b> ceiling: for every
+        episode, the QoE-maximising bitrate sequence given full knowledge of that episode's bandwidth
+        trace, solved exactly by a Bellman recursion over (chunk index, buffer occupancy discretised
+        at 0.1&nbsp;s, previous bitrate) in the same simulator. It is solved on exactly the episodes
+        the agents faced, so the comparison is paired episode by episode &mdash; and because the
+        solver sees the entire future, <i>no causal policy can reach it</i>.
+      </p>
+      <div class="table-container">
+        <table class="table is-narrow is-fullwidth is-size-7">
+          <thead>
+            <tr><th>Method</th><th>QoE</th><th>Bitrate (Mbps)</th><th>Rebuffer (s)</th><th>Smoothness (Mbps)</th><th>Inference (ms)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Buffer-based</td><td>0.623 &plusmn; 0.379</td><td>1.011</td><td>0.002</td><td>0.378</td><td>0.0026</td></tr>
+            <tr><td>Rate-based</td><td>0.470 &plusmn; 0.583</td><td>1.143</td><td>0.081</td><td>0.324</td><td>0.0089</td></tr>
+            <tr><td>RobustMPC</td><td>0.748 &plusmn; 0.587</td><td>1.113</td><td>0.046</td><td>0.167</td><td>0.1075</td></tr>
+            <tr><td>Pensieve</td><td>0.866 &plusmn; 0.541</td><td>1.044</td><td>0.012</td><td>0.126</td><td>0.2984</td></tr>
+            <tr><td>MERINA</td><td>0.869 &plusmn; 0.506</td><td>1.080</td><td>0.016</td><td>0.142</td><td>0.4118</td></tr>
+            <tr><td>PA-MoE</td><td>0.914 &plusmn; 0.478</td><td>1.063</td><td>0.009</td><td>0.109</td><td>0.8056</td></tr>
+            <tr><td><b>ReSiN</b></td><td><b>0.923</b> &plusmn; 0.520</td><td>1.062</td><td>0.014</td><td>0.080</td><td>0.3620</td></tr>
+            <tr><td><b>ReSiN-MoE</b></td><td><b>0.932</b> &plusmn; 0.446</td><td>1.041</td><td>0.005</td><td>0.087</td><td>0.9242</td></tr>
+            <tr class="upper-bound"><td>Offline optimal <span class="tag is-light">upper bound</span></td><td>1.105 &plusmn; 0.524</td><td>1.142</td><td>0.001</td><td>0.032</td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Two things follow. First, the ceiling puts the margins in perspective: ReSiN reaches
+        <b>0.923</b> against Pensieve's 0.866 with 1.105 attainable, so the remaining headroom is
+        real but the ordering among methods is not noise. Second, the cost of getting there is
+        negligible &mdash; a bitrate decision takes <b>0.362&nbsp;ms</b> against Pensieve's
+        0.298&nbsp;ms on the same CPU, five orders of magnitude below the 4&nbsp;s chunk duration,
+        so it never delays a chunk request.
+      </p>
+    </div>
+
+    <div class="content has-text-justified mt-5 takeaways">
+      <h3 class="title is-4">Where this leaves us</h3>
+      <ul>
+        <li><b>Claim 1 &check;</b> 178% higher IQM QoE than standard PPO under bandwidth shift and
+          24% ahead of output-based dormant resets &mdash; and no cost in stationary environments,
+          where it still gains 1.6%.</li>
+        <li><b>Claim 2 &check;</b> The gains co-move with measured dormancy reduction: plasticity is
+          the mechanism, not a side effect of extra noise.</li>
+        <li><b>Claim 3 &check;</b> Flat across wide bands of $\delta_d,\delta_g$; carries over to
+          real-world traces and other backbones; both halves of the silence criterion are needed.</li>
+        <li><b>Claim 4 &check;</b> Ahead of rule-based and learning-based ABR baselines on train and
+          test trace pools, at 0.362&nbsp;ms per decision, and benchmarked against an offline-optimal
+          ceiling of 1.105.</li>
+        <li><b>Closing the loop with the theory:</b> the same measurements validate the premises the
+          bound rests on &mdash; non-degeneracy holds and $d_{s,t}\ll d$ throughout &mdash; so the
+          regime where Theorem 3 is strictly tighter is exactly the regime the system operates in.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ======================= BibTeX ======================= -->
+<section class="section alt" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{he2025silent,
+  author  = {He, Zhiqiang and Liu, Zhi},
+  title   = {Silent Neuron Theory and Plasticity Preservation for Deep
+             Reinforcement Learning in Adaptive Video Streaming},
+  journal = {arXiv preprint arXiv:2505.01584},
+  year    = {2025},
+  url     = {https://arxiv.org/abs/2505.01584},
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="./static/pdfs/ReSiN_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/tinyzqh">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
